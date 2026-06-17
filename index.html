@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PaperReady · 投稿形式审查 + 编辑审阅</title>
+<title>PaperReady · Submission Formal Check + Editor Review</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
@@ -105,8 +105,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
 .nact button{font:inherit;font-size:11.5px;cursor:pointer;border-radius:6px;padding:5px 12px;border:1px solid transparent;}
 .acc{background:var(--blue);color:#fff;} .acc:hover{background:var(--blue-d);}
 .ign{background:transparent;color:var(--muted);border-color:var(--line2);}
-.note.resolved{opacity:.55;} .note.resolved .nact,.note.resolved .nsugg{display:none;} .note.resolved .nhead::after{content:"· 已采纳";color:var(--green);}
-.note.dismissed{opacity:.4;} .note.dismissed .nact,.note.dismissed .nsugg{display:none;} .note.dismissed .nhead::after{content:"· 已忽略";color:var(--faint);}
+.note.resolved{opacity:.55;} .note.resolved .nact,.note.resolved .nsugg{display:none;} .note.resolved .nhead::after{content:"· doneAccept";color:var(--green);}
+.note.dismissed{opacity:.4;} .note.dismissed .nact,.note.dismissed .nsugg{display:none;} .note.dismissed .nhead::after{content:"· doneIgnore";color:var(--faint);}
 .footbar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);padding:11px 24px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted);z-index:6;}
 .next{background:var(--blue);color:#fff;text-decoration:none;padding:8px 18px;border-radius:8px;font-weight:500;cursor:pointer;}
 .dwrap{max-width:860px;margin:24px auto;padding:0 24px 90px;}
@@ -129,7 +129,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
 .cstat{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;margin-top:1px;}
 .chk.pass .cstat{background:var(--green);} .chk.fail .cstat{background:var(--red);} .chk.warn .cstat{background:var(--amber);} .chk.manual .cstat{background:var(--faint);}
 .cmain{font-size:13.5px;line-height:1.5;color:#2a323e;} .cmain b{color:var(--ink);} .cwhy{font-size:11.5px;color:var(--muted);margin-top:3px;}
-/* 转换主线：源期刊 ⟶ 目标期刊 */
+/* transformation banner: source journal ⟶ Target journal */
 .xform{display:flex;align-items:stretch;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(20,30,50,.04);}
 .xnode{flex:1;border:1px solid var(--line);border-radius:11px;padding:12px 14px;min-width:0;}
 .xnode .xlab{font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-bottom:5px;}
@@ -144,7 +144,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
 .xform.compact .xnode{flex:none;padding:6px 12px;border-radius:20px;} .xform.compact .xname{font-size:13px;} .xform.compact .xnode .xlab{display:none;}
 .xform.compact .xcount{border:none;padding-left:8px;} .xform.compact .xcount b{font-size:15px;} .xform.compact .xcount span{display:inline;margin:0 0 0 4px;}
 
-/* 导出成果 modal */
+/* Exportdeliverable modal */
 .modal{position:fixed;inset:0;background:rgba(20,28,48,.45);display:flex;align-items:center;justify-content:center;z-index:30;padding:20px;}
 .mcard{background:var(--surface);border-radius:16px;max-width:520px;width:100%;box-shadow:0 24px 60px -20px rgba(20,30,60,.4);padding:26px 28px;}
 .mtitle{font-size:18px;font-weight:700;display:flex;align-items:center;gap:9px;margin-bottom:4px;}
@@ -155,7 +155,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
 .mli:first-of-type{border-top:none;} .mli .mok{color:var(--green);font-weight:700;} .mli .mtodo{color:var(--amber);font-weight:700;}
 .mact{display:flex;gap:10px;margin-top:20px;}
 
-/* 视觉打磨：更专业的着陆 hero */
+/* visual polish: professional hero hero */
 .hero2{margin-top:54px;}
 .hero2 .eyebrow{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--blue-d);background:var(--blue-bg);padding:5px 13px;border-radius:20px;margin-bottom:16px;}
 .hero2 h1{font-size:34px;}
@@ -174,73 +174,73 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
 </head>
 <body>
 
-<!-- 上传 -->
+<!-- Upload -->
 <div class="screen" id="s-upload">
   <header class="topbar">
     <div class="brand"><span class="logo">✓</span> Paper<b>Ready</b></div>
     <nav class="steps">
-      <span class="step now"><i>1</i> 上传</span><span class="sep"></span>
-      <span class="step"><i>2</i> 选刊</span><span class="sep"></span>
-      <span class="step"><i>3</i> 形式审查</span><span class="sep"></span>
-      <span class="step"><i>4</i> 编辑审阅</span><span class="sep"></span>
-      <span class="step"><i>5</i> 导出</span>
+      <span class="step now"><i>1</i> Upload</span><span class="sep"></span>
+      <span class="step"><i>2</i> Journal</span><span class="sep"></span>
+      <span class="step"><i>3</i> Formal check</span><span class="sep"></span>
+      <span class="step"><i>4</i> Editor review</span><span class="sep"></span>
+      <span class="step"><i>5</i> Export</span>
     </nav>
     <div class="target">Nature Medicine</div>
   </header>
   <div class="hero2">
-    <div class="eyebrow">改投 · 期刊转换</div>
-    <h1>把被拒的稿子，<b>专业地转投下一家</b></h1>
-    <div class="av"><span class="ab">原期刊体例</span><span class="ar">⟶</span><span class="ab to">目标期刊 · 投稿就绪</span></div>
-    <p class="sub">上传稿件、选目标期刊——它在你浏览器本地真实分析，告诉你"离这家投稿就绪还差哪几处"，并逐条带你改到位。</p>
+    <div class="eyebrow">Resubmission · Journal transfer</div>
+    <h1>Take your rejected manuscript and <b>professionally transfer it to the next journal</b></h1>
+    <div class="av"><span class="ab">Original journal style</span><span class="ar">⟶</span><span class="ab to">Target journal · submission-ready</span></div>
+    <p class="sub">Upload your manuscript and pick a target journal — it analyzes the real content locally in your browser and tells you "exactly what stands between you and submission-ready for that journal", then walks you through each fix.</p>
     <div class="ucard">
-      <div class="fld"><span class="flab">1 · 目标期刊</span>
+      <div class="fld"><span class="flab">1 · Target journal</span>
         <select id="journal"><option>Nature Medicine</option><option>The Lancet</option><option>NEJM</option><option>Cell</option><option>JAMA</option></select>
       </div>
-      <div class="fld"><span class="flab">2 · 上传稿件</span>
+      <div class="fld"><span class="flab">2 · Upload manuscript</span>
         <label class="drop" id="drop"><input type="file" id="file" accept=".docx,.pdf" hidden>
-          <div class="di">&#128196;</div><div class="dt">把 .docx / .pdf 拖到这里，或点击选择</div>
-          <div class="ds">在你浏览器本地解析，<b>不会上传到任何服务器</b></div>
+          <div class="di">&#128196;</div><div class="dt">Drop a .docx / .pdf here, or click to choose</div>
+          <div class="ds">Parsed locally in your browser — <b>never uploaded to any server</b></div>
           <div class="fn" id="fn" hidden></div>
         </label>
       </div>
-      <div class="uact"><button class="btn primary" id="go-check">开始检查</button><button class="btn ghost" id="go-sample">用示例稿件试试 →</button></div>
+      <div class="uact"><button class="btn primary" id="go-check">Analyze</button><button class="btn ghost" id="go-sample">Try a sample manuscript →</button></div>
     </div>
-    <div class="trust">为临床研究者打造 · <b>本地解析，文件不上传</b> · 支持 .docx / .pdf</div>
-    <div class="demo-note">形式审查与用词检查是<b>真实规则分析</b>（在本地对你上传的文件运行）。带期刊语料出处的"主编级"判断需连接 AI 引擎，本页用通用规则近似。</div>
+    <div class="trust">Built for clinical researchers · <b>local parsing, files never uploaded</b> · supports .docx / .pdf</div>
+    <div class="demo-note">The formal check and wording analysis are <b>real rule-based analysis</b> (run locally on your uploaded file). The "editor-grade" judgment with journal-corpus citations needs the AI engine; this page approximates it with a general rule library.</div>
   </div>
 </div>
 
 <div class="loader" id="loader" style="display:none">
-  <div class="lcard"><h3 id="lfile">正在分析…</h3>
-    <div class="lstep"><span class="lc"></span> 解析文件、拆解结构</div>
-    <div class="lstep"><span class="lc"></span> 识别文章类型</div>
-    <div class="lstep"><span class="lc"></span> 形式 / 格式审查</div>
-    <div class="lstep"><span class="lc"></span> 生成逐条修改建议</div>
+  <div class="lcard"><h3 id="lfile">Analyzing…</h3>
+    <div class="lstep"><span class="lc"></span> Parse file, extract structure</div>
+    <div class="lstep"><span class="lc"></span> Identify article type</div>
+    <div class="lstep"><span class="lc"></span> Formal / format check</div>
+    <div class="lstep"><span class="lc"></span> Generate line-by-line suggestions</div>
     <div class="lerr" id="lerr" style="display:none"></div>
   </div>
 </div>
 
-<!-- 形式审查 -->
+<!-- Formal check -->
 <div class="screen" id="s-diag" style="display:none">
   <header class="topbar">
     <div class="brand"><span class="logo">✓</span> Paper<b>Ready</b></div>
     <nav class="steps">
-      <span class="step done"><i>✓</i> 上传</span><span class="sep"></span>
-      <span class="step done"><i>✓</i> 选刊</span><span class="sep"></span>
-      <span class="step now"><i>3</i> 形式审查</span><span class="sep"></span>
-      <span class="step"><i>4</i> 编辑审阅</span><span class="sep"></span>
-      <span class="step"><i>5</i> 导出</span>
+      <span class="step done"><i>✓</i> Upload</span><span class="sep"></span>
+      <span class="step done"><i>✓</i> Journal</span><span class="sep"></span>
+      <span class="step now"><i>3</i> Formal check</span><span class="sep"></span>
+      <span class="step"><i>4</i> Editor review</span><span class="sep"></span>
+      <span class="step"><i>5</i> Export</span>
     </nav>
     <div class="target" id="t-journal">Nature Medicine</div>
   </header>
   <div class="dwrap">
     <div id="xform-diag"></div>
     <section class="diag">
-      <div class="dhead"><span class="vtag">稿件诊断</span> <span id="diag-type">识别中…</span></div>
+      <div class="dhead"><span class="vtag">Diagnosis</span> <span id="diag-type">Detecting…</span></div>
       <div class="dtags" id="diag-tags"></div>
     </section>
     <section class="expect">
-      <div class="etitle"><i class="ei">›</i> <span id="expect-title">目标期刊对该类稿件的形式要求</span></div>
+      <div class="etitle"><i class="ei">›</i> <span id="expect-title">the target journal's formal requirements for this article type</span></div>
       <ul class="elist" id="expect-list"></ul>
       <div class="efoot"><i class="vi">●</i> <span id="expect-foot"></span></div>
     </section>
@@ -251,51 +251,51 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
   </div>
   <footer class="footbar">
     <span id="diag-foot"></span>
-    <a class="next" id="go-review">进入编辑审阅 →</a>
+    <a class="next" id="go-review">Go to editor review →</a>
   </footer>
 </div>
 
-<!-- 编辑审阅 -->
+<!-- Editor review -->
 <div class="screen" id="s-rev" style="display:none">
   <header class="topbar">
     <div class="brand"><span class="logo">✓</span> Paper<b>Ready</b></div>
     <nav class="steps">
-      <span class="step done"><i>✓</i> 上传</span><span class="sep"></span>
-      <span class="step done"><i>✓</i> 选刊</span><span class="sep"></span>
-      <span class="step done link" id="go-diag"><i>✓</i> 形式审查</span><span class="sep"></span>
-      <span class="step now"><i>4</i> 编辑审阅</span><span class="sep"></span>
-      <span class="step"><i>5</i> 导出</span>
+      <span class="step done"><i>✓</i> Upload</span><span class="sep"></span>
+      <span class="step done"><i>✓</i> Journal</span><span class="sep"></span>
+      <span class="step done link" id="go-diag"><i>✓</i> Formal check</span><span class="sep"></span>
+      <span class="step now"><i>4</i> Editor review</span><span class="sep"></span>
+      <span class="step"><i>5</i> Export</span>
     </nav>
     <div class="target" id="t-journal2">Nature Medicine</div>
   </header>
   <section class="verdict">
-    <div class="vmain"><span class="vtag">主编初判</span> <span id="rev-verdict"></span></div>
+    <div class="vmain"><span class="vtag">Editor's read</span> <span id="rev-verdict"></span></div>
     <div id="xform-rev" style="margin:6px 0 2px"></div>
-    <div class="vfoot"><i class="vi">●</i> 判断依据：本地规则库（期刊体例 + CONSORT/注册要求 + 常见过度声称词）。带<b>真实期刊语料出处</b>的深度判断需连接 AI 引擎。</div>
+    <div class="vfoot"><i class="vi">●</i> Basis: local rule library (journal style + CONSORT/registration requirements + common over-claim words). <b>real journal-corpus citations</b> for the deeper judgment require the AI engine.</div>
   </section>
   <div class="dash">
-    <div class="ready"><div class="rlab" id="rlab-ready">距投稿就绪</div><div class="rnum"><b id="v-ready">--</b><span>%</span></div><div class="track wide"><i id="b-ready" class="c-warn" style="width:0%"></i></div></div>
+    <div class="ready"><div class="rlab" id="rlab-ready">Submission readiness</div><div class="rnum"><b id="v-ready">--</b><span>%</span></div><div class="track wide"><i id="b-ready" class="c-warn" style="width:0%"></i></div></div>
     <div class="risks">
-      <div class="rk hi"><b id="v-rhi">0</b><span>高风险 · 可致 desk-reject</span></div>
-      <div class="rk lo"><b id="v-rlo">0</b><span>低风险 · 用词</span></div>
-      <div class="rk gd"><b id="v-rgd">0</b><span>已达标</span></div>
+      <div class="rk hi"><b id="v-rhi">0</b><span>High risk · can cause desk-reject</span></div>
+      <div class="rk lo"><b id="v-rlo">0</b><span>Low risk · wording</span></div>
+      <div class="rk gd"><b id="v-rgd">0</b><span>Passing</span></div>
     </div>
-    <div class="prog"><div class="mlabel">审阅进度 <b id="v-progress">0%</b></div><div class="track"><i id="b-progress" style="width:0%"></i></div></div>
+    <div class="prog"><div class="mlabel">Review progress <b id="v-progress">0%</b></div><div class="track"><i id="b-progress" style="width:0%"></i></div></div>
   </div>
   <main class="stage" id="stage">
     <article class="doc" id="doc"></article>
     <aside class="rail" id="rail"></aside>
   </main>
-  <footer class="footbar"><span id="summary-line"></span><a class="next" id="go-export" href="javascript:void(0)">导出投稿就绪版 →</a></footer>
+  <footer class="footbar"><span id="summary-line"></span><a class="next" id="go-export" href="javascript:void(0)">Export submission-ready version →</a></footer>
 </div>
 
 <div class="modal" id="export-modal" style="display:none">
   <div class="mcard">
-    <div class="mtitle"><span class="ck">✓</span> <span id="ex-title">投稿就绪版</span></div>
+    <div class="mtitle"><span class="ck">✓</span> <span id="ex-title">submission-ready version</span></div>
     <div class="msub" id="ex-sub"></div>
-    <div id="ex-applied-wrap"><div class="msec">已应用的转换</div><div id="ex-applied"></div></div>
-    <div id="ex-todo-wrap"><div class="msec">仍需你补充</div><div id="ex-todo"></div></div>
-    <div class="mact"><button class="btn primary" id="ex-download">下载变更清单</button><button class="btn ghost" id="ex-close">关闭</button></div>
+    <div id="ex-applied-wrap"><div class="msec">Applied conversions</div><div id="ex-applied"></div></div>
+    <div id="ex-todo-wrap"><div class="msec">Still to address</div><div id="ex-todo"></div></div>
+    <div class="mact"><button class="btn primary" id="ex-download">Download change list</button><button class="btn ghost" id="ex-close">Close</button></div>
   </div>
 </div>
 
@@ -307,10 +307,10 @@ var byId = function(id){ return document.getElementById(id); };
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function words(s){ return (s.trim().match(/[A-Za-z0-9'À-ɏ-]+/g)||[]).length; }
 
-// ---------- 解析 ----------
+// ---------- parse ----------
 async function parseDocx(ab){
   var zip = await JSZip.loadAsync(ab);
-  var f = zip.file("word/document.xml"); if(!f) throw new Error("不是有效的 .docx");
+  var f = zip.file("word/document.xml"); if(!f) throw new Error("not a valid .docx");
   var xml = await f.async("string");
   var dom = new DOMParser().parseFromString(xml, "text/xml");
   var ps = dom.getElementsByTagName("w:p"), out=[];
@@ -323,7 +323,7 @@ async function parseDocx(ab){
     var isH = /heading|title/i.test(st) || (t.length<70 && HEAD_RE.test(t));
     out.push({text:t, heading:isH});
   }
-  if(!out.length) throw new Error("未提取到文本");
+  if(!out.length) throw new Error("no text extracted");
   return out;
 }
 async function parsePdf(ab){
@@ -338,19 +338,19 @@ async function parsePdf(ab){
     });
     flush();
   }
-  if(!out.length) throw new Error("PDF 未提取到文本（可能是扫描件，需 OCR）");
+  if(!out.length) throw new Error("PDF no text extracted (may be a scanned PDF needing OCR)");
   return out;
 }
 
-// ---------- 分析（真实规则） ----------
+// ---------- analysis (real rules)  ----------
 var WORD_RULES = [
-  {re:/\bdemonstrat(e|es|ed|ing)\b/i, sug:"suggest", why:"小样本难言“证明”；本刊多用弱断言（suggest / indicate）"},
-  {re:/\bprov(e|es|ed|en)\b/i, sug:"indicate", why:"避免“证明”式断言"},
-  {re:/\brobust\b/i, sug:"reliable", why:"“robust” 属强化 / 过度声称词"},
-  {re:/\bsignificantly\b/i, sug:"changed from baseline / meaningfully", why:"“significantly” 易被读作统计显著，描述性结果应避免"},
-  {re:/\befficacy\b/i, sug:"activity", why:"早期试验谈 activity 而非 efficacy"},
-  {re:/\bmarkedly\b/i, sug:"（删去）", why:"强化词，建议删去"},
-  {re:/\bdramatically\b/i, sug:"（删去）", why:"强化词，建议删去"}
+  {re:/\bdemonstrat(e|es|ed|ing)\b/i, sug:"suggest", why:"small samples can't “prove”; this journal favors hedged wording (suggest / indicate)"},
+  {re:/\bprov(e|es|ed|en)\b/i, sug:"indicate", why:"avoid “prove”-style claims"},
+  {re:/\brobust\b/i, sug:"reliable", why:"“robust” is an intensifier / over-claim word"},
+  {re:/\bsignificantly\b/i, sug:"changed from baseline / meaningfully", why:"“significantly” easily read as statistically significant; avoid for descriptive results"},
+  {re:/\befficacy\b/i, sug:"activity", why:"early-phase trials report activity, not efficacy"},
+  {re:/\bmarkedly\b/i, sug:" (remove) ", why:"intensifier; recommend deleting"},
+  {re:/\bdramatically\b/i, sug:" (remove) ", why:"intensifier; recommend deleting"}
 ];
 function analyze(paras, journal){
   var fullText = paras.map(function(p){return p.text;}).join("\n");
@@ -371,57 +371,57 @@ function analyze(paras, journal){
   var nct = (fullText.match(/NCT\d{6,8}/i)||[])[0] || null;
   // declarations
   var decl = {
-    "利益冲突": /(competing interest|conflict of interest|declaration of interest)/i.test(lower),
-    "数据可用性": /data availability/i.test(lower),
-    "代码可用性": /code availability/i.test(lower),
-    "作者贡献": /author contribution/i.test(lower),
-    "伦理批准": /(ethic|institutional review board|\birb\b|approval was|informed consent)/i.test(lower)
+    "Competing interests": /(competing interest|conflict of interest|declaration of interest)/i.test(lower),
+    "Data availability": /data availability/i.test(lower),
+    "Code availability": /code availability/i.test(lower),
+    "Author contributions": /author contribution/i.test(lower),
+    "Ethics approval": /(ethic|institutional review board|\birb\b|approval was|informed consent)/i.test(lower)
   };
   // clinical signals
   var sig=[];
-  if(/random(ized|ised|ly)/i.test(lower)) sig.push("随机对照 RCT");
+  if(/random(ized|ised|ly)/i.test(lower)) sig.push("Randomized RCT");
   if(/sham[- ]?control|sham/i.test(lower)) sig.push("sham-controlled");
-  if(/single[- ]?mask|single[- ]?blind/i.test(lower)) sig.push("单盲");
-  if(/double[- ]?mask|double[- ]?blind/i.test(lower)) sig.push("双盲");
-  if(/placebo[- ]?control/i.test(lower)) sig.push("安慰剂对照");
-  if(/first[- ]in[- ]human/i.test(lower)) sig.push("首次人体 FIH");
-  if(/open[- ]?label/i.test(lower)) sig.push("开放标签");
+  if(/single[- ]?mask|single[- ]?blind/i.test(lower)) sig.push("Single-masked");
+  if(/double[- ]?mask|double[- ]?blind/i.test(lower)) sig.push("Double-masked");
+  if(/placebo[- ]?control/i.test(lower)) sig.push("Placebo-controlled");
+  if(/first[- ]in[- ]human/i.test(lower)) sig.push("First-in-human (FIH)");
+  if(/open[- ]?label/i.test(lower)) sig.push("Open-label");
   var ph=(lower.match(/phase\s*(1|2|3|i{1,3}|one|two|three)/i)||[])[0]; if(ph) sig.push(ph.replace(/\s+/g," "));
-  if(/dose[- ]escalat/i.test(lower)) sig.push("剂量爬坡");
+  if(/dose[- ]escalat/i.test(lower)) sig.push("Dose-escalation");
   var clinical = /(patient|participant|enrolled|trial|adults|cohort)/i.test(lower) || sig.length>0;
   var isRCT = /random(ized|ised)/i.test(lower);
-  var typeStr = clinical ? ("临床研究论文" + (isRCT ? " · 随机对照试验（RCT）" : (sig.length?" · 干预性试验":""))) : "研究论文（类型未明确识别）";
-  if(nct) sig.push("注册号 " + nct);
+  var typeStr = clinical ? ("Clinical research article" + (isRCT ? " · randomized controlled trial (RCT)" : (sig.length?" · interventional trial":""))) : "Research article (type not clearly identified)";
+  if(nct) sig.push("Reg. " + nct);
 
-  // ---- 形式审查 checklist ----
+  // ---- Formal check checklist ----
   var checks=[]; // {group,status,label,why}
-  checks.push({g:"体例 / 结构", s:hasHighlights?"fail":"pass",
-    label: hasHighlights? "体例匹配 —— 含 <b>Highlights</b>（Cell 体例）；Nature Medicine 用 Abstract" : "体例匹配 —— 未见 Highlights，符合 Abstract 体例",
-    why: hasHighlights? "Nature Medicine 不使用 Highlights" : ""});
+  checks.push({g:"Style / structure", s:hasHighlights?"fail":"pass",
+    label: hasHighlights? "Style match — contains <b>Highlights</b> (Cell style); Nature Medicine uses an Abstract" : "Style match — no Highlights, consistent with Abstract style",
+    why: hasHighlights? "Nature Medicine does not use Highlights" : ""});
   var absStatus = !absSec? "warn" : (absWords>150? "fail":"pass");
-  checks.push({g:"体例 / 结构", s:absStatus,
-    label: !absSec? "摘要 —— 未识别到 Abstract/Summary 段" : ("摘要长度 —— 约 <b>"+absWords+" 词</b>"+(absWords>150?"，超出 NM ~150 词上限":"，在 ~150 词内")),
-    why: !absSec?"建议明确标注摘要段":""});
+  checks.push({g:"Style / structure", s:absStatus,
+    label: !absSec? "Abstract — no Abstract/Summary section detected" : ("Abstract length — about <b>"+absWords+" words</b>"+(absWords>150?", over NM's ~150-word limit":", within ~150 words")),
+    why: !absSec?"Add a clearly labeled abstract section":""});
   ["Introduction","Results","Discussion","Methods"].forEach(function(sec){
     var present = hasHead(new RegExp("^"+sec.slice(0,5),"i")) || new RegExp("\\b"+sec+"\\b","i").test(lower);
-    if(!present) checks.push({g:"体例 / 结构", s:"warn", label:"缺少 <b>"+sec+"</b> 章节（或未识别到标题）", why:""});
+    if(!present) checks.push({g:"Style / structure", s:"warn", label:"Missing <b>"+sec+"</b> section (or heading not detected)", why:""});
   });
   if(clinical){
-    checks.push({g:"临床试验必备", s:nct?"pass":"fail",
-      label: nct? "试验注册号 —— <b>"+nct+"</b>（检测到）" : "试验注册号 —— <b>未检测到 NCT 号</b>",
-      why: nct? "请确认为前瞻性注册并置于摘要末（NM 不接受回顾性注册）" : "NM 要求 RCT 前瞻性注册并给出注册号"});
-    checks.push({g:"临床试验必备", s:/consort/i.test(lower)?"pass":"warn",
-      label: /consort/i.test(lower)? "CONSORT —— 文中提及" : "CONSORT —— 未见提及，需随附流程图 + 检查表", why:""});
+    checks.push({g:"Clinical-trial essentials", s:nct?"pass":"fail",
+      label: nct? "Trial registration — <b>"+nct+"</b> (detected)" : "Trial registration — <b>no NCT number detected</b>",
+      why: nct? "Confirm prospective registration with the number at the end of the abstract (NM does not accept retrospective registration)" : "NM requires prospective registration for RCTs, with a registration number"});
+    checks.push({g:"Clinical-trial essentials", s:/consort/i.test(lower)?"pass":"warn",
+      label: /consort/i.test(lower)? "CONSORT — mentioned in text" : "CONSORT — not mentioned; attach the flow diagram + checklist", why:""});
   }
   Object.keys(decl).forEach(function(k){
-    checks.push({g:"声明与合规", s:decl[k]?"pass":"fail", label:k+" 声明 —— "+(decl[k]?"已检测到":"<b>未检测到</b>"), why:decl[k]?"":"NM 投稿要求必备"});
+    checks.push({g:"Declarations & compliance", s:decl[k]?"pass":"fail", label:k+" statement — "+(decl[k]?"detected":"<b>not detected</b>"), why:decl[k]?"":"Required by NM submission policy"});
   });
 
   var fails = checks.filter(function(c){return c.s==="fail";}).length;
   var warns = checks.filter(function(c){return c.s==="warn";}).length;
-  var sourceLabel = hasHighlights ? "Cell 体例" : (absSec ? "通用体例" : "未识别体例");
+  var sourceLabel = hasHighlights ? "Cell style" : (absSec ? "Generic style" : "Unidentified style");
 
-  // ---- 编辑审阅 标注 ----
+  // ---- Editor review annotation ----
   var anns=[]; // {kind, sevWeight, sev, target, ...}
   if(hasHighlights) anns.push({type:"struct-hl", sev:"high", w:14});
   if(absSec && absWords>150) anns.push({type:"struct-abs", sev:"high", w:12, words:absWords});
@@ -436,7 +436,7 @@ function analyze(paras, journal){
     anns:anns, journal:journal, totalWords:words(fullText), sourceLabel:sourceLabel};
 }
 
-// ---------- 渲染：形式审查 ----------
+// ---------- render: Formal check ----------
 function xformCount(A){ return A.fails + A.warns + A.anns.filter(function(a){return a.type==="word";}).length; }
 function xformBanner(A, compact){
   var n = xformCount(A);
@@ -444,37 +444,37 @@ function xformBanner(A, compact){
     return '<div class="xform compact"><span class="xnode src"><span class="xname">'+esc(A.sourceLabel)+'</span></span>'+
       '<span class="xarrow"><span class="a">⟶</span></span>'+
       '<span class="xnode tgt"><span class="xname">'+esc(A.journal)+'</span></span>'+
-      '<span class="xcount"><b>'+n+'</b><span>处待转换</span></span></div>';
+      '<span class="xcount"><b>'+n+'</b><span> changes to make</span></span></div>';
   }
   return '<div class="xform">'+
-    '<div class="xnode src"><div class="xlab">当前体例</div><div class="xname">'+esc(A.sourceLabel)+'</div></div>'+
-    '<div class="xarrow"><span class="a">⟶</span><span class="t">转换为</span></div>'+
-    '<div class="xnode tgt"><div class="xlab">目标期刊 · 投稿就绪</div><div class="xname">'+esc(A.journal)+'</div></div>'+
-    '<div class="xcount"><b>'+n+'</b><span>处待转换</span></div></div>';
+    '<div class="xnode src"><div class="xlab">Current style</div><div class="xname">'+esc(A.sourceLabel)+'</div></div>'+
+    '<div class="xarrow"><span class="a">⟶</span><span class="t">convert to</span></div>'+
+    '<div class="xnode tgt"><div class="xlab">Target journal · submission-ready</div><div class="xname">'+esc(A.journal)+'</div></div>'+
+    '<div class="xcount"><b>'+n+'</b><span> changes to make</span></div></div>';
 }
 function renderDiag(A){
   byId("t-journal").textContent = A.journal; byId("t-journal2").textContent = A.journal;
   byId("xform-diag").innerHTML = xformBanner(A, false);
-  byId("diag-type").innerHTML = "识别为：<b>"+esc(A.typeStr)+"</b>";
+  byId("diag-type").innerHTML = "Detected as: <b>"+esc(A.typeStr)+"</b>";
   var tags = A.sig.slice();
-  if(A.clinical && tags.indexOf("临床研究")<0) {}
-  byId("diag-tags").innerHTML = (tags.length?tags:["未识别到明显的研究设计标签"]).map(function(t){
-    var cls = /注册号/.test(t)?" reg":"";
+  if(A.clinical && tags.indexOf("clinical study")<0) {}
+  byId("diag-tags").innerHTML = (tags.length?tags:["No clear study-design signals detected"]).map(function(t){
+    var cls = /Reg\.|NCT/.test(t)?" reg":"";
     return '<span class="dtag'+cls+'">'+esc(t)+'</span>';
   }).join("");
-  byId("expect-title").textContent = A.journal+" 对「"+(A.isRCT?"临床 RCT":(A.clinical?"临床研究":"研究论文"))+"」这类稿件的形式要求";
+  byId("expect-title").textContent = A.journal+"  — formal requirements for a "+(A.isRCT?"clinical RCT":(A.clinical?"clinical study":"research article"))+" submission";
   byId("expect-list").innerHTML = [
-    "遵循 <b>CONSORT</b>（流程图 + 检查表）；试验须<b>前瞻性注册</b>，注册号置于摘要末",
-    "早期试验以<b>安全</b>为 prespecified primary；效价用 exploratory / descriptive 措辞",
-    "<b>Abstract ≤ ~150 词</b>（非 Highlights + Summary 的 Cell 体例）；叙事<b>患者 / 安全先行</b>",
-    "完整<b>声明区</b>（利益冲突 / 数据可用性 / 代码可用性 / 作者贡献 / 伦理）"
+    "Follow <b>CONSORT</b> (flow diagram + checklist); the trial must be <b>prospectively registered</b>, with the registration number at the end of the abstract",
+    "Early-phase trials use <b>safety</b> as the prespecified primary endpoint; report efficacy with exploratory / descriptive wording",
+    "<b>Abstract ≤ ~150 words</b> (not the Cell-style Highlights + Summary); narrative is <b>patient / safety first</b>",
+    "Complete <b>declarations section</b> (competing interests / data availability / code availability / author contributions / ethics)"
   ].map(function(x){return "<li>"+x+"</li>";}).join("");
-  byId("expect-foot").innerHTML = "以上为 "+esc(A.journal)+" 临床类稿件的通用形式要求（规则库）。下方逐条为对<b>你上传文件</b>的真实检查结果。";
+  byId("expect-foot").innerHTML = "Above: "+esc(A.journal)+"'s general formal requirements for clinical submissions (rule library). Below is the real, per-item check on <b>your uploaded file</b>.";
 
   var pass = A.fails===0 && A.warns===0;
   var cv = byId("c-verdict"); cv.className = "cverdict " + (pass?"pass":"fail");
-  cv.querySelector(".cvbig").innerHTML = pass? "<b>形式审查：通过</b>" : ("<b>形式审查：未通过</b> —— "+A.fails+" 项不符 · "+A.warns+" 项待确认");
-  cv.querySelector(".cvsub").textContent = pass? "形式要件齐备，可送编辑审阅" : "补齐 / 确认后即可送编辑审阅";
+  cv.querySelector(".cvbig").innerHTML = pass? "<b>Formal check: passed</b>" : ("<b>Formal check: not passed</b> —— "+A.fails+" not met · "+A.warns+" to confirm");
+  cv.querySelector(".cvsub").textContent = pass? "All formal requirements met; ready for editor review" : "Address / confirm these, then it can go to the editor";
 
   var groups={}; A.checks.forEach(function(c){ (groups[c.g]=groups[c.g]||[]).push(c); });
   var sym={pass:"✓",fail:"✗",warn:"!",manual:"?"};
@@ -486,18 +486,18 @@ function renderDiag(A){
     });
   });
   byId("checks-body").innerHTML = html;
-  byId("diag-foot").innerHTML = pass? "形式审查通过" : ('<b style="color:var(--red)">形式审查未通过</b> · '+A.fails+" 项不符 + "+A.warns+" 项待确认 —— 通常补齐后才会进入编辑手中");
+  byId("diag-foot").innerHTML = pass? "Formal check passed" : ('<b style="color:var(--red)">Formal check not passed</b> · '+A.fails+" not met + "+A.warns+" to confirm — usually addressed before it reaches the editor");
 }
 
-// ---------- 渲染：编辑审阅 ----------
+// ---------- render: Editor review ----------
 var NOTES=[], STAGE, GAP=12;
 function renderReview(A){
-  byId("rev-verdict").innerHTML = "把这篇从 <b>"+esc(A.sourceLabel)+"</b> 转成 <b>"+esc(A.journal)+"</b> 投稿就绪，还差 <b>"+xformCount(A)+"</b> 处"
-    + (A.hasHighlights ? "——目前<b>大概率 desk-reject</b>。" : "。");
+  byId("rev-verdict").innerHTML = "Converting this from <b>"+esc(A.sourceLabel)+"</b> to <b>"+esc(A.journal)+"</b> submission-ready — <b>"+xformCount(A)+"</b> changes to go"
+    + (A.hasHighlights ? ". <b>Currently likely to be desk-rejected.</b>" : ". ");
   byId("xform-rev").innerHTML = xformBanner(A, true);
-  byId("rlab-ready").textContent = "距 " + A.journal + " 投稿就绪";
+  byId("rlab-ready").textContent = "Ready for " + A.journal;
 
-  // 渲染原文，并对 word 标注包裹首个匹配
+  // rendertext, and for word wrap first match
   var doc=byId("doc"); doc.innerHTML="";
   var wordAnns = A.anns.filter(function(a){return a.type==="word";});
   var pending = wordAnns.map(function(a,i){ a.id="ann-w"+i; a.done=false; return a; });
@@ -514,7 +514,7 @@ function renderReview(A){
       doc.appendChild(h); return;
     }
     if(inHL && hlUL){ var li=document.createElement("li"); li.textContent=p.text; hlUL.appendChild(li); return; }
-    // 普通段：包裹 word 标注
+    // normal paragraph: wrap word annotation
     var html=esc(p.text);
     pending.forEach(function(a){
       if(a.done) return;
@@ -528,7 +528,7 @@ function renderReview(A){
     var para=document.createElement("p"); para.innerHTML=html; doc.appendChild(para);
   });
 
-  // 构建批注卡
+  // build annotation cards
   var rail=byId("rail"); rail.innerHTML=""; NOTES=[];
   function addNote(opts){
     var d=document.createElement("div");
@@ -538,29 +538,29 @@ function renderReview(A){
     d.innerHTML='<div class="nhead"><span class="dot '+opts.dot+'"></span> '+opts.head+'</div>'+
       '<div class="nbody">'+opts.body+'</div>'+
       (opts.sug&&opts.action==="replace"?'<div class="nsugg">→ '+esc(opts.sug)+'</div>':'')+
-      (opts.evid?'<div class="evid'+(opts.evidRisk?" risk":"")+'"><span class="el">依据</span>'+opts.evid+'</div>':'')+
-      '<div class="nact"><button class="acc">采纳</button><button class="ign">忽略</button></div>';
+      (opts.evid?'<div class="evid'+(opts.evidRisk?" risk":"")+'"><span class="el">Basis</span>'+opts.evid+'</div>':'')+
+      '<div class="nact"><button class="acc">Accept</button><button class="ign">Ignore</button></div>';
     rail.appendChild(d); NOTES.push(d);
   }
   if(A.hasHighlights && byId("hl-block"))
     addNote({cls:"warn",dot:"warn",anchor:"hl-block",cat:"struct",w:14,sev:"high",action:"delete",
-      head:'期刊匹配 · <em>高风险</em>', body:'<b>删除 Highlights 整段</b> —— Cell 体例，NM 不用。',
-      evid:'Nature Medicine 投稿不使用 Highlights'});
+      head:'Journal fit · <em>high risk</em>', body:'<b>Delete the entire Highlights block</b> — Cell style; NM does not use it.',
+      evid:'Nature Medicine submissions do not use Highlights'});
   if(byId("anc-abs"))
-    addNote({cls:"warn",dot:"warn",anchor:"anc-abs",cat:"struct",w:12,sev:"high",action:"rename",sug:"Abstract（精简至 ~150 词）",
-      head:'期刊匹配 · <em>高风险</em>', body:'摘要约 <b>'+A.absWords+' 词</b>，超出上限；并将标题改为 Abstract。',
-      evid:'NM 摘要上限约 <b>150 词</b>'});
+    addNote({cls:"warn",dot:"warn",anchor:"anc-abs",cat:"struct",w:12,sev:"high",action:"rename",sug:"Abstract (trim to ~150 words) ",
+      head:'Journal fit · <em>high risk</em>', body:'Abstract is about <b>'+A.absWords+' words</b>, over the limit; also rename the heading to Abstract.',
+      evid:'NM abstract limit is about <b>150 words</b>'});
   pending.forEach(function(a){
     if(!a.done) return;
     addNote({cls:"fix",dot:"fix",anchor:a.id,cat:"tone",w:3,sev:"low",action:"replace",sug:a.sug,
-      head:'用词 · <em>低风险</em>', body:'“'+esc(a.match)+'” —— 过度声称 / 强化词。', evid:esc(a.why)});
+      head:'Wording · <em>low risk</em>', body:'“'+esc(a.match)+'” — over-claim / intensifier word.', evid:esc(a.why)});
   });
 
   initInteractions();
   recompute();
 }
 
-// ---------- 交互 / 评分 ----------
+// ---------- interaction / scoring ----------
 function anchorOf(n){ return byId(n.dataset.anchor); }
 function layout(){
   if(window.innerWidth<=880 || byId("s-rev").style.display==="none") return;
@@ -579,7 +579,7 @@ function recompute(){
   var bar=byId("b-ready"); bar.style.width=ready+"%"; bar.className=ready>=85?"c-ok":"c-warn";
   byId("v-ready").textContent=ready; byId("v-rhi").textContent=rhi; byId("v-rlo").textContent=rlo; byId("v-rgd").textContent=rgd;
   var p=act?Math.round(dec/act*100):0; byId("b-progress").style.width=p+"%"; byId("v-progress").textContent=p+"%";
-  byId("summary-line").textContent=rhi+" 高风险 · "+rlo+" 低风险";
+  byId("summary-line").textContent=rhi+" high risk · "+rlo+" low risk";
 }
 function accept(note){
   var a=anchorOf(note), act=note.dataset.action, sug=note.dataset.suggestion;
@@ -603,11 +603,11 @@ function initInteractions(){
   });
 }
 
-// ---------- 流程 ----------
+// ---------- flow ----------
 var ANALYSIS=null;
 function showScreen(el){ ["s-upload","s-diag","s-rev"].forEach(function(id){ byId(id).style.display=(id===el?"block":"none"); }); window.scrollTo(0,0); }
 function runLoader(name, work){
-  byId("lfile").textContent="正在分析："+name; byId("lerr").style.display="none";
+  byId("lfile").textContent="Analyzing: "+name; byId("lerr").style.display="none";
   var steps=Array.prototype.slice.call(document.querySelectorAll(".lstep")); steps.forEach(function(s){s.className="lstep";});
   byId("loader").style.display="flex";
   var i=0, finished=false, result=null, error=null;
@@ -618,15 +618,15 @@ function runLoader(name, work){
     else { setTimeout(done, 300); }
   })();
   function done(){
-    if(error){ byId("lerr").style.display="block"; byId("lerr").textContent="解析失败："+(error.message||error)+"（请改用 .docx，或点“用示例稿件”）"; return; }
-    if(!result){ setTimeout(done,300); return; } // 等异步
+    if(error){ byId("lerr").style.display="block"; byId("lerr").textContent="Parse failed: "+(error.message||error)+" (try a .docx instead, or click “the sample”)"; return; }
+    if(!result){ setTimeout(done,300); return; } // await async
     ANALYSIS=result; byId("loader").style.display="none"; renderDiag(result);
     renderReviewDeferred=true; showScreen("s-diag");
   }
 }
 var renderReviewDeferred=false;
 function readFile(file){
-  return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result);}; r.onerror=function(){rej(new Error("读取失败"));}; r.readAsArrayBuffer(file); });
+  return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result);}; r.onerror=function(){rej(new Error("read failed"));}; r.readAsArrayBuffer(file); });
 }
 async function analyzeFile(file, journal){
   var ab=await readFile(file);
@@ -634,7 +634,7 @@ async function analyzeFile(file, journal){
   return analyze(paras, journal);
 }
 
-// 示例稿件（虚构，用于无文件时演示——同样走真实分析管线）
+// sample manuscript (fictional, used when no file——same real pipeline) 
 var SAMPLE = [
   {t:"Highlights", h:true},
   {t:"AX-114 shows blue-selective activation at the single-channel level", h:false},
@@ -653,7 +653,7 @@ var SAMPLE = [
 ];
 function sampleParas(){ return SAMPLE.map(function(s){return {text:s.t, heading:s.h};}); }
 
-// ---------- 导出成果 ----------
+// ---------- Exportdeliverable ----------
 function openExport(){
   var A=ANALYSIS; if(!A) return;
   var ready=byId("v-ready").textContent, applied=[], todo=[];
@@ -662,36 +662,36 @@ function openExport(){
     if(n.classList.contains("resolved")) applied.push(label); else todo.push(label);
   });
   A.checks.forEach(function(c){ if(c.s==="fail"||c.s==="warn") todo.push(c.label.replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim()); });
-  byId("ex-title").textContent = A.journal + " 投稿就绪版";
-  byId("ex-sub").innerHTML = "已应用 <b>"+applied.length+"</b> 处转换；距 "+esc(A.journal)+" 投稿就绪 <b>"+ready+"%</b>。仍有 <b>"+todo.length+"</b> 项需你补充 / 确认。";
-  byId("ex-applied").innerHTML = applied.length? applied.map(function(t){return '<div class="mli"><span class="mok">✓</span>'+esc(t)+'</div>';}).join("") : '<div class="mli" style="color:var(--muted)">（还没采纳任何修改——回去点几个"采纳"看看效果）</div>';
-  byId("ex-todo").innerHTML = todo.length? todo.slice(0,10).map(function(t){return '<div class="mli"><span class="mtodo">•</span>'+esc(t)+'</div>';}).join("") : '<div class="mli"><span class="mok">✓</span>形式要件齐备</div>';
+  byId("ex-title").textContent = A.journal + " ";
+  byId("ex-sub").innerHTML = "Applied <b>"+applied.length+"</b> conversions; "+esc(A.journal)+" submission-ready <b>"+ready+"%</b>. <b>"+todo.length+"</b> items still need your input / confirmation.";
+  byId("ex-applied").innerHTML = applied.length? applied.map(function(t){return '<div class="mli"><span class="mok">✓</span>'+esc(t)+'</div>';}).join("") : '<div class="mli" style="color:var(--muted)"> (no changes accepted yet — go back and "Accept" a few to see it work)</div>';
+  byId("ex-todo").innerHTML = todo.length? todo.slice(0,10).map(function(t){return '<div class="mli"><span class="mtodo">•</span>'+esc(t)+'</div>';}).join("") : '<div class="mli"><span class="mok">✓</span>All formal requirements met</div>';
   byId("export-modal").style.display="flex";
 }
 function downloadChanges(){
-  var A=ANALYSIS||{journal:"目标期刊"}, lines=["PaperReady — 转投 "+A.journal+" · 变更清单",""," 【已应用的转换】"];
+  var A=ANALYSIS||{journal:"Target journal"}, lines=["PaperReady — Resubmission to "+A.journal+" · change list",""," [Applied conversions]"];
   byId("ex-applied").querySelectorAll(".mli").forEach(function(el){ lines.push("  - "+el.textContent.replace(/^✓/,"").trim()); });
-  lines.push(""," 【仍需补充 / 确认】");
+  lines.push(""," [Still to address / confirm]");
   byId("ex-todo").querySelectorAll(".mli").forEach(function(el){ lines.push("  - "+el.textContent.replace(/^[•✓]/,"").trim()); });
   var blob=new Blob([lines.join("\n")],{type:"text/plain;charset=utf-8"});
-  var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="PaperReady-变更清单.txt"; document.body.appendChild(a); a.click(); a.remove();
+  var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="PaperReady-change-list.txt"; document.body.appendChild(a); a.click(); a.remove();
 }
 
 // ---------- wire ----------
 (function(){
   var file=byId("file"), fn=byId("fn"), drop=byId("drop");
-  file.addEventListener("change",function(){ if(file.files[0]){ fn.textContent="已选择："+file.files[0].name; fn.hidden=false; } });
+  file.addEventListener("change",function(){ if(file.files[0]){ fn.textContent="Selected: "+file.files[0].name; fn.hidden=false; } });
   ["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add("drag");});});
   ["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.remove("drag");});});
-  drop.addEventListener("drop",function(e){ if(e.dataTransfer.files[0]){ file.files=e.dataTransfer.files; fn.textContent="已选择："+e.dataTransfer.files[0].name; fn.hidden=false; } });
+  drop.addEventListener("drop",function(e){ if(e.dataTransfer.files[0]){ file.files=e.dataTransfer.files; fn.textContent="Selected: "+e.dataTransfer.files[0].name; fn.hidden=false; } });
 
   byId("go-check").addEventListener("click",function(){
     var j=byId("journal").value;
     if(file.files[0]) runLoader(file.files[0].name, function(){ return analyzeFile(file.files[0], j); });
-    else runLoader("示例稿件 AX-114", function(){ return Promise.resolve(analyze(sampleParas(), j)); });
+    else runLoader("Sample manuscript (AX-114)", function(){ return Promise.resolve(analyze(sampleParas(), j)); });
   });
   byId("go-sample").addEventListener("click",function(){
-    runLoader("示例稿件 AX-114", function(){ return Promise.resolve(analyze(sampleParas(), byId("journal").value)); });
+    runLoader("Sample manuscript (AX-114)", function(){ return Promise.resolve(analyze(sampleParas(), byId("journal").value)); });
   });
   byId("go-review").addEventListener("click",function(){ showScreen("s-rev"); if(ANALYSIS){ renderReview(ANALYSIS); } setTimeout(layout,30); });
   byId("go-diag").addEventListener("click",function(){ showScreen("s-diag"); });
