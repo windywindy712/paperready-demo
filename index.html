@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PaperReady · 演示 · 形式审查 → 编辑审阅</title>
+  <style>
+  :root{
+    --blue:#2c6cf0; --blue-d:#1f54c9; --blue-bg:#eaf1fe;
+    --amber:#c9820a; --amber-bg:#fbf2e0;
+    --red:#d6453d; --red-bg:#fbeae9;
+    --green:#1a9c5b; --green-bg:#e7f5ee;
+    --ink:#202733; --muted:#6b7480; --faint:#9aa3af;
+    --line:#e8ebf1; --line2:#dfe3ea; --bg:#f6f8fb; --surface:#fff;
+    --serif:Georgia,"Times New Roman",ui-serif,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased;}
+  .topbar{display:flex;align-items:center;gap:20px;background:var(--surface);border-bottom:1px solid var(--line);padding:0 22px;height:52px;position:sticky;top:0;z-index:5;}
+  .brand{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;}
+  .brand b{color:var(--blue);font-weight:600;}
+  .brand .logo{width:24px;height:24px;border-radius:7px;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:13px;}
+  .steps{display:flex;align-items:center;gap:0;margin:0 auto;}
+  .step{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--faint);}
+  .step i{width:19px;height:19px;border-radius:50%;background:var(--line);color:var(--muted);display:grid;place-items:center;font-size:11px;font-style:normal;}
+  .step.done{color:var(--muted);} .step.done i{background:var(--green-bg);color:var(--green);}
+  .step.now{color:var(--ink);font-weight:600;} .step.now i{background:var(--blue);color:#fff;}
+  .step.link{cursor:pointer;} .step.link:hover{color:var(--blue);}
+  .sep{width:30px;height:1px;background:var(--line2);margin:0 9px;}
+  .target{font-size:12.5px;color:var(--muted);border:1px solid var(--line2);border-radius:20px;padding:4px 12px;}
+  .verdict{background:linear-gradient(180deg,#fff,#fbfcff);border-bottom:1px solid var(--line);padding:16px 24px;}
+  .vmain{font-size:16px;color:var(--ink);margin-bottom:11px;}
+  .vmain b{color:var(--red);font-weight:600;}
+  .vtag{display:inline-block;background:var(--ink);color:#fff;font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;margin-right:9px;vertical-align:1px;}
+  .vrow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .vchip{flex:1;min-width:230px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12.5px;line-height:1.45;color:#39414d;}
+  .vchip.risk{border-color:#f3c6c2;background:var(--red-bg);}
+  .vk{display:block;font-size:10.5px;font-weight:600;letter-spacing:.03em;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+  .vchip.risk .vk{color:var(--red);}
+  .vfoot{font-size:11.5px;color:var(--muted);}
+  .vfoot b{color:var(--blue-d);font-weight:600;} .vi{color:var(--blue);font-style:normal;font-size:9px;margin-right:5px;}
+  .dash{display:flex;align-items:center;gap:30px;background:var(--surface);border-bottom:1px solid var(--line);padding:13px 24px;flex-wrap:wrap;}
+  .ready{min-width:240px;}
+  .rlab{font-size:11.5px;color:var(--muted);margin-bottom:3px;}
+  .rnum{font-size:26px;font-weight:700;line-height:1;margin-bottom:6px;}
+  .rnum span{font-size:15px;font-weight:600;color:var(--muted);margin-left:1px;}
+  .track{height:7px;border-radius:99px;background:var(--line);overflow:hidden;}
+  .track.wide{width:240px;}
+  .track i{display:block;height:100%;border-radius:99px;background:var(--blue);transition:width .4s ease,background .3s;}
+  .track i.c-ok{background:var(--green);} .track i.c-warn{background:var(--amber);}
+  .risks{display:flex;gap:10px;}
+  .rk{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:128px;border-radius:9px;padding:8px 10px;border:1px solid var(--line);}
+  .rk b{font-size:20px;font-weight:700;line-height:1;}
+  .rk span{font-size:10.5px;color:var(--muted);margin-top:3px;}
+  .rk.hi{background:var(--red-bg);border-color:#f3c6c2;} .rk.hi b{color:var(--red);}
+  .rk.lo{background:var(--amber-bg);border-color:#f0dcb0;} .rk.lo b{color:var(--amber);}
+  .rk.gd{background:var(--green-bg);border-color:#bfe6cd;} .rk.gd b{color:var(--green);}
+  .prog{margin-left:auto;min-width:160px;}
+  .mlabel{font-size:11.5px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;gap:10px;}
+  .mlabel b{font-weight:600;color:var(--ink);}
+  .stage{position:relative;max-width:1060px;margin:26px auto;padding:0 24px 80px;}
+  .doc{width:min(640px,calc(100% - 360px));background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:34px 42px;}
+  .doc h2{font-family:var(--sans);font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--blue-d);margin:26px 0 10px;font-weight:600;}
+  .doc .kicker{font-family:var(--sans);font-size:11.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--faint);margin:22px 0 4px;font-weight:600;}
+  .doc p{font-family:var(--serif);font-size:16px;line-height:1.85;color:#222a36;margin:0 0 4px;}
+  .doc ul.hl{font-family:var(--serif);font-size:15px;line-height:1.7;color:#222a36;margin:2px 0 6px;padding-left:20px;}
+  .doc ul.hl.removed{opacity:.4;text-decoration:line-through;text-decoration-color:var(--amber);}
+  .ann{cursor:pointer;border-radius:2px;transition:background .15s;}
+  .ann.fix{background:var(--amber-bg);border-bottom:2px solid var(--amber);padding:0 1px;}
+  .ann.fix.hi{background:var(--red-bg);border-bottom:2px solid var(--red);}
+  .ann.good{background:var(--green-bg);border-bottom:2px solid var(--green);padding:0 1px;}
+  .ann.lit{background:#fff3bf;}
+  .ann.applied{background:var(--green-bg);border-bottom:1px solid var(--green);color:#13703f;}
+  .ann.ignored{background:transparent;border-bottom:1px dotted var(--faint);color:inherit;}
+  .rail{position:absolute;top:0;right:24px;width:320px;}
+  .note{position:absolute;left:0;width:320px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line2);border-radius:9px;padding:11px 13px;box-shadow:0 1px 3px rgba(20,30,50,.05);transition:top .3s ease,opacity .25s,box-shadow .15s;}
+  .note.warn{border-left-color:var(--amber);} .note.fix{border-left-color:var(--blue);} .note.fix.hi{border-left-color:var(--red);} .note.good{border-left-color:var(--green);}
+  .note.lit{box-shadow:0 4px 16px rgba(44,108,240,.18);}
+  .nhead{font-size:11px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+  .nhead em{font-style:normal;font-weight:700;}
+  .note.warn .nhead em,.note.fix.hi .nhead em{color:var(--red);}
+  .note.fix:not(.hi) .nhead em{color:var(--amber);}
+  .dot{width:8px;height:8px;border-radius:50%;}
+  .dot.warn{background:var(--amber);} .dot.fix{background:var(--blue);} .dot.fix.hi{background:var(--red);} .dot.good{background:var(--green);}
+  .note.fix.hi .nhead{color:var(--red);}
+  .nbody{font-size:12.5px;line-height:1.55;color:#39414d;}
+  .evid{font-size:11.5px;line-height:1.5;color:#475063;background:var(--blue-bg);border-radius:7px;padding:7px 10px;margin-top:7px;}
+  .evid .el{display:block;font-size:10px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--blue-d);margin-bottom:2px;}
+  .evid b{color:var(--ink);font-weight:600;} .evid i{font-style:italic;color:var(--blue-d);}
+  .evid.risk{background:var(--red-bg);} .evid.risk .el{color:var(--red);}
+  .nsugg{font-size:12.5px;color:#13703f;background:var(--green-bg);border-radius:6px;padding:6px 9px;margin-top:7px;font-family:var(--serif);}
+  .nact{display:flex;gap:7px;margin-top:9px;}
+  .nact button{font:inherit;font-size:11.5px;cursor:pointer;border-radius:6px;padding:5px 12px;border:1px solid transparent;}
+  .acc{background:var(--blue);color:#fff;} .acc:hover{background:var(--blue-d);}
+  .ign{background:transparent;color:var(--muted);border-color:var(--line2);} .ign:hover{border-color:var(--muted);}
+  .note.resolved{opacity:.55;} .note.resolved .nact,.note.resolved .nsugg{display:none;}
+  .note.resolved .nhead::after{content:"· 已采纳";color:var(--green);}
+  .note.dismissed{opacity:.4;} .note.dismissed .nact,.note.dismissed .nsugg{display:none;}
+  .note.dismissed .nhead::after{content:"· 已忽略";color:var(--faint);}
+  .footbar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);padding:11px 24px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted);z-index:6;}
+  .next{background:var(--blue);color:#fff;text-decoration:none;padding:8px 18px;border-radius:8px;font-weight:500;cursor:pointer;}
+  .next:hover{background:var(--blue-d);}
+  .dwrap{max-width:860px;margin:24px auto;padding:0 24px 90px;}
+  .diag{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px;}
+  .dhead{font-size:16px;margin-bottom:12px;} .dhead b{color:var(--blue-d);font-weight:600;}
+  .dtags{display:flex;flex-wrap:wrap;gap:7px;}
+  .dtag{font-size:12px;background:#eef1f7;color:#39414d;border-radius:20px;padding:4px 11px;}
+  .dtag.area{background:var(--blue-bg);color:var(--blue-d);} .dtag.reg{background:var(--green-bg);color:#107043;}
+  .expect{background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:16px;}
+  .etitle{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:9px;}
+  .etitle .ei{color:var(--blue);font-style:normal;font-weight:700;margin-right:5px;}
+  .elist{margin:0;padding-left:20px;font-size:13px;line-height:1.85;color:#39414d;} .elist b{color:var(--ink);font-weight:600;}
+  .efoot{font-size:11.5px;color:var(--muted);margin-top:9px;border-top:1px dashed var(--line);padding-top:9px;} .efoot b{color:var(--blue-d);font-weight:600;}
+  .checks{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 20px 16px;}
+  .cverdict{margin:14px 0 6px;padding:13px 16px;border-radius:10px;background:var(--red-bg);border:1px solid #f3c6c2;}
+  .cverdict.fail .cvbig b{color:var(--red);}
+  .cvbig{font-size:15px;} .cvsub{font-size:12px;color:var(--muted);margin-top:3px;}
+  .ctitle{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin:18px 0 8px;}
+  .chk{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);}
+  .chk:first-of-type{border-top:none;}
+  .cstat{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;margin-top:1px;}
+  .chk.pass .cstat{background:var(--green);} .chk.fail .cstat{background:var(--red);}
+  .chk.warn .cstat{background:var(--amber);} .chk.manual .cstat{background:var(--faint);}
+  .cmain{font-size:13.5px;line-height:1.5;color:#2a323e;} .cmain b{font-weight:600;color:var(--ink);}
+  .cwhy{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  @media(max-width:880px){
+    .doc{width:100%;} .rail{position:static;width:100%;margin-top:18px;}
+    .note{position:static!important;width:100%;margin-bottom:10px;}
+    .steps{display:none;}
+  }
+  </style>
+</head>
+<body>
+
+<!-- ============ 步骤 3：形式审查 ============ -->
+<div class="screen" id="s-diag">
+  <header class="topbar">
+    <div class="brand"><span class="logo">✓</span> Paper<b>Ready</b></div>
+    <nav class="steps">
+      <span class="step done"><i>✓</i> 上传</span><span class="sep"></span>
+      <span class="step done"><i>✓</i> 选刊</span><span class="sep"></span>
+      <span class="step now"><i>3</i> 形式审查</span><span class="sep"></span>
+      <span class="step"><i>4</i> 编辑审阅</span><span class="sep"></span>
+      <span class="step"><i>5</i> 导出</span>
+    </nav>
+    <div class="target">Nature Medicine</div>
+  </header>
+
+  <div class="dwrap">
+    <section class="diag">
+      <div class="dhead"><span class="vtag">稿件诊断</span> 识别为：<b>临床研究论文 · 随机对照试验（RCT）· 首次人体（FIH）</b></div>
+      <div class="dtags">
+        <span class="dtag">随机对照 RCT</span><span class="dtag">首次人体 FIH</span>
+        <span class="dtag">单盲 single-masked</span><span class="dtag">sham-controlled</span>
+        <span class="dtag">剂量爬坡</span><span class="dtag">n = 8 成人</span>
+        <span class="dtag area">眼科 · 遗传性视网膜变性</span><span class="dtag area">光遗传基因治疗 · AAV 载体</span>
+        <span class="dtag reg">注册号 NCT0XXXXXXX</span>
+      </div>
+    </section>
+
+    <section class="expect">
+      <div class="etitle"><i class="ei">›</i> Nature Medicine 对「临床 RCT」这类稿件的形式要求</div>
+      <ul class="elist">
+        <li>遵循 <b>CONSORT</b>（流程图 + 检查表）；试验须<b>前瞻性注册</b>，注册号置于摘要末</li>
+        <li>早期试验以<b>安全</b>为 prespecified primary；效价用 exploratory / descriptive 措辞</li>
+        <li><b>Abstract ≤ ~150 词</b>（非 Highlights + Summary 的 Cell 体例）；叙事<b>患者 / 安全先行</b></li>
+        <li>完整<b>声明区</b>（利益冲突 / 数据可用性 / 代码可用性 / 作者贡献 / 伦理）；表格为可编辑格式</li>
+      </ul>
+      <div class="efoot"><i class="vi">●</i> 依据：6 篇 NM 示例样本中 <b>5 篇</b>为 RCT / 早期试验（Lindgren 2025 · Okafor 2024 · Haas 2025 · Rossi 2025 · Sørensen 2024）</div>
+    </section>
+
+    <section class="checks">
+      <div class="cverdict fail">
+        <div class="cvbig"><b>形式审查：未通过</b> —— 2 项不符 · 4 项待补</div>
+        <div class="cvsub">注册与 CONSORT 主体已具备；补齐后即可送编辑审阅</div>
+      </div>
+      <div class="ctitle">体例 / 结构</div>
+      <div class="chk fail"><span class="cstat">✗</span><div class="cmain"><b>体例匹配</b> —— 含 Highlights，是 <b>Cell 体例</b>；NM 用 Abstract<div class="cwhy">依据：6 篇 NM 语料 0/6 含 Highlights</div></div></div>
+      <div class="chk warn"><span class="cstat">!</span><div class="cmain"><b>章节顺序</b> —— 机制先行（A1）；NM 偏患者 / 安全先行（A2）</div></div>
+      <div class="chk fail"><span class="cstat">✗</span><div class="cmain"><b>摘要长度</b> —— 约 230 词，超出 NM <b>~150 词</b>上限<div class="cwhy">依据：NM 作者指南</div></div></div>
+      <div class="ctitle">临床试验必备要件</div>
+      <div class="chk pass"><span class="cstat">✓</span><div class="cmain"><b>前瞻性试验注册</b> —— NCT0XXXXXXX<div class="cwhy">依据：注册日期先于首例入组 → 前瞻性 ✓（NM 不接受回顾性注册）</div></div></div>
+      <div class="chk pass"><span class="cstat">✓</span><div class="cmain"><b>CONSORT 流程图</b> —— 见 Fig. S3</div></div>
+      <div class="chk warn"><span class="cstat">!</span><div class="cmain"><b>CONSORT 检查表</b> —— 需随附完整检查表</div></div>
+      <div class="chk pass"><span class="cstat">✓</span><div class="cmain"><b>主要终点 = 安全</b> —— 已声明 safety / tolerability 为 prespecified primary</div></div>
+      <div class="ctitle">声明与合规</div>
+      <div class="chk warn"><span class="cstat">!</span><div class="cmain"><b>伦理批准声明</b> —— 节选未见，需在 Methods 明确</div></div>
+      <div class="chk fail"><span class="cstat">✗</span><div class="cmain"><b>声明区</b> —— 利益冲突 / 数据可用性 / 代码可用性 / 作者贡献 <b>均未见</b>，需补<div class="cwhy">依据：NM 投稿要求必备</div></div></div>
+      <div class="chk manual"><span class="cstat">?</span><div class="cmain"><b>表格为可编辑格式</b>（非图片）—— 需人工确认</div></div>
+    </section>
+  </div>
+
+  <footer class="footbar">
+    <span><b style="color:var(--red)">形式审查未通过</b> · 2 项不符 + 4 项待补 —— 通常补齐后才会进入编辑手中</span>
+    <a class="next" id="go-review">进入编辑审阅 →</a>
+  </footer>
+</div>
+
+<!-- ============ 步骤 4：编辑审阅 ============ -->
+<div class="screen" id="s-rev" style="display:none">
+  <header class="topbar">
+    <div class="brand"><span class="logo">✓</span> Paper<b>Ready</b></div>
+    <nav class="steps">
+      <span class="step done"><i>✓</i> 上传</span><span class="sep"></span>
+      <span class="step done"><i>✓</i> 选刊</span><span class="sep"></span>
+      <span class="step done link" id="go-diag"><i>✓</i> 形式审查</span><span class="sep"></span>
+      <span class="step now"><i>4</i> 编辑审阅</span><span class="sep"></span>
+      <span class="step"><i>5</i> 导出</span>
+    </nav>
+    <div class="target">Nature Medicine</div>
+  </header>
+
+  <section class="verdict">
+    <div class="vmain"><span class="vtag">主编初判</span> 按 Nature Medicine 现行标准，这份目前<b>大概率 desk-reject</b>——读起来像 Cell 投稿。</div>
+    <div class="vrow">
+      <div class="vchip"><span class="vk">期刊体例</span>Highlights + Summary + 机制先行 = Cell；NM 用 Abstract、患者先行</div>
+      <div class="vchip"><span class="vk">叙事框架</span>A1 机制先行 → NM 偏 A2 安全 / 患者先行</div>
+      <div class="vchip risk"><span class="vk">头号送命题</span>Chromatic 的 “distinguished” —— 暗示色彩分辨，审稿人常据此质疑</div>
+    </div>
+    <div class="vfoot"><i class="vi">●</i> 判断依据：你选入的 <b>6 篇 Nature Medicine 临床试验示例样本</b>（Lindgren 2025 · Okafor 2024 · Haas 2025 · Rossi 2025 · Sørensen 2024 …）+ 上一轮审稿意见，<b>非通用语料</b></div>
+  </section>
+
+  <div class="dash">
+    <div class="ready">
+      <div class="rlab">Nature Medicine 过审就绪度</div>
+      <div class="rnum"><b id="v-ready">62</b><span>%</span></div>
+      <div class="track wide"><i id="b-ready" class="c-warn" style="width:62%"></i></div>
+    </div>
+    <div class="risks">
+      <div class="rk hi"><b id="v-rhi">3</b><span>高风险 · 可致 desk-reject</span></div>
+      <div class="rk lo"><b id="v-rlo">2</b><span>低风险 · 用词</span></div>
+      <div class="rk gd"><b id="v-rgd">2</b><span>已达标</span></div>
+    </div>
+    <div class="prog"><div class="mlabel">审阅进度 <b id="v-progress">0%</b></div><div class="track"><i id="b-progress" style="width:0%"></i></div></div>
+  </div>
+
+  <main class="stage" id="stage">
+    <article class="doc">
+      <p class="kicker">Highlights</p>
+      <ul class="hl" id="anc-hl">
+        <li>AX-114 shows blue-selective activation at the single-channel level</li>
+        <li>Light responses broaden from channel to retina to cortex across wavelengths</li>
+        <li>Unilateral intravitreal AAV gives mostly local retinal exposure in primates</li>
+        <li>A single intravitreal dose was well tolerated over 48 weeks in advanced retinal degeneration</li>
+      </ul>
+      <h2 id="anc-abs">Summary</h2>
+      <p>Optogenetic therapy can render surviving inner retinal neurons light-sensitive after photoreceptor loss. Here we characterize AX-114, an engineered high-sensitivity channelrhodopsin delivered by intravitreal AAV (AX-114). In a first-in-human, randomized, single-masked, sham-controlled trial (NCT0XXXXXXX) in ten adults with advanced inherited retinal degeneration, a single intravitreal dose of AX-114 was well tolerated over 48 weeks, with no serious adverse events. <span class="ann good" id="anc-efficacy">Exploratory functional changes were compatible with biological activity but not definitive evidence of efficacy.</span> These findings <span class="ann fix" id="anc-define">define a translational framework</span> for device-free optogenetic vision restoration and motivate confirmatory trials.</p>
+      <h2>Introduction</h2>
+      <p>In preclinical models, intravitreal AAV delivery produced <span class="ann fix" id="anc-robust">robust</span> expression and photocurrent activation at luminance levels comparable to moonlight, indicating that AX-114 can activate retinal circuits under very dim light without light-amplifying devices.</p>
+      <h2>Results</h2>
+      <p class="kicker">Visual Acuity Outcomes</p>
+      <p>Mean change from baseline in BCVA was 0.55±0.30 logMAR in study eyes and 0.58±0.34 logMAR in fellow eyes (n=8). Fellow-eye change was comparable to, and on average slightly larger than, study-eye change. <span class="ann good" id="anc-fellow">Because changes of similar magnitude occurred in eyes that received no injection, these BCVA changes cannot be attributed specifically to the treated study eye, and are reported as exploratory observations.</span></p>
+      <p class="kicker">Chromatic Response</p>
+      <p>At Week 52, treated participants <span class="ann fix hi" id="anc-moji">identified and distinguished chromatic stimuli</span> above chance. Performance above chance does not by itself establish trichromatic color perception, and the underlying mechanism is not directly demonstrated by these data.</p>
+    </article>
+
+    <aside class="rail" id="rail">
+      <div class="note warn" data-anchor="anc-hl" data-cat="struct" data-weight="14" data-sev="high" data-action="delete">
+        <div class="nhead"><span class="dot warn"></span> 期刊匹配 · <em>高风险</em></div>
+        <div class="nbody"><b>删除 Highlights 整段</b> —— 这是 Cell 体例，NM 不用。</div>
+        <div class="evid"><span class="el">依据</span>6 篇 NM 示例样本 <b>全部</b>是 Abstract 体例，<b>0/6</b> 含 Highlights</div>
+        <div class="nact"><button class="acc">采纳：删除整段</button><button class="ign">忽略</button></div>
+      </div>
+      <div class="note warn" data-anchor="anc-abs" data-cat="struct" data-weight="14" data-sev="high" data-action="rename" data-suggestion="Abstract">
+        <div class="nhead"><span class="dot warn"></span> 期刊匹配 · <em>高风险</em></div>
+        <div class="nbody"><b>“Summary” → “Abstract”</b>，并精简。</div>
+        <div class="evid"><span class="el">依据</span>NM 作者指南：摘要上限 <b>~150 词</b>；你这段 <b>~230 词</b> · 注册号已在内 ✓</div>
+        <div class="nact"><button class="acc">采纳：改为 Abstract</button><button class="ign">忽略</button></div>
+      </div>
+      <div class="note fix hi" data-anchor="anc-moji" data-cat="tone" data-weight="6" data-sev="high" data-action="replace" data-suggestion="performed above chance on the forced-choice chromatic task">
+        <div class="nhead"><span class="dot fix"></span> 过审风险 · <em>高风险</em></div>
+        <div class="nbody">“distinguished” 暗示能<b>分辨</b>颜色。</div>
+        <div class="nsugg">→ performed above chance on the forced-choice chromatic task</div>
+        <div class="evid risk"><span class="el">依据</span>单通道光敏元件原理上只能支持<b>检测</b>、不能支持分辨；属此类研究<b>常见审稿攻击点</b></div>
+        <div class="nact"><button class="acc">采纳</button><button class="ign">忽略</button></div>
+      </div>
+      <div class="note fix" data-anchor="anc-define" data-cat="tone" data-weight="2" data-sev="low" data-action="replace" data-suggestion="provide a translational framework">
+        <div class="nhead"><span class="dot fix"></span> 本刊惯用 · <em>低风险</em></div>
+        <div class="nbody">“define” 偏绝对。</div>
+        <div class="nsugg">→ provide a translational framework</div>
+        <div class="evid"><span class="el">依据</span>本刊保守措辞：“…was associated with a greater reduction…”（<i>Lindgren 2025</i>）；“…suggest … could be a first step”（<i>Sørensen 2024</i>）</div>
+        <div class="nact"><button class="acc">采纳</button><button class="ign">忽略</button></div>
+      </div>
+      <div class="note fix" data-anchor="anc-robust" data-cat="tone" data-weight="2" data-sev="low" data-action="replace" data-suggestion="reliable">
+        <div class="nhead"><span class="dot fix"></span> 本刊惯用 · <em>低风险</em></div>
+        <div class="nbody">“robust” 是强化词。</div>
+        <div class="nsugg">→ reliable</div>
+        <div class="evid"><span class="el">依据</span>6 篇语料全文检索 “robust”：<b>出现 0 次</b>；本刊倾向直接陈述、不加强化</div>
+        <div class="nact"><button class="acc">采纳</button><button class="ign">忽略</button></div>
+      </div>
+      <div class="note good" data-anchor="anc-efficacy" data-cat="info" data-weight="0">
+        <div class="nhead"><span class="dot good"></span> 已达标</div><div class="nbody">完美的 evidence-paper 措辞，保留。</div>
+      </div>
+      <div class="note good" data-anchor="anc-fellow" data-cat="info" data-weight="0">
+        <div class="nhead"><span class="dot good"></span> 已达标</div><div class="nbody">Fellow-eye 混杂披露 + 放弃归因，教科书级，保留。</div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footbar">
+    <span id="summary-line">3 高风险 · 2 低风险 · 2 已达标</span>
+    <a class="next" href="#">导出投稿包 →</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var sDiag = document.getElementById("s-diag");
+  var sRev  = document.getElementById("s-rev");
+  var stage, notes = [], GAP = 12, inited = false;
+
+  function anchorOf(n){ return document.getElementById(n.dataset.anchor); }
+  function layout(){
+    if (window.innerWidth <= 880 || sRev.style.display === "none") return;
+    var stageTop = stage.getBoundingClientRect().top + window.scrollY;
+    var items = notes.map(function(n){
+      var a = anchorOf(n);
+      return { n:n, top:a.getBoundingClientRect().top + window.scrollY - stageTop };
+    }).sort(function(x,y){ return x.top - y.top; });
+    var cursor = 0;
+    items.forEach(function(it){
+      var top = Math.max(it.top, cursor);
+      it.n.style.top = top + "px";
+      cursor = top + it.n.offsetHeight + GAP;
+    });
+  }
+  function recompute(){
+    var penalty=0, rhi=0, rlo=0, rgd=0, decided=0, actionable=0;
+    notes.forEach(function(n){
+      var cat=n.dataset.cat;
+      if (cat==="info"){ rgd++; return; }
+      actionable++;
+      var resolved=n.classList.contains("resolved"), dismissed=n.classList.contains("dismissed");
+      if (resolved||dismissed) decided++;
+      if (!resolved){ penalty+=parseFloat(n.dataset.weight)||0; if(n.dataset.sev==="high") rhi++; else rlo++; }
+    });
+    var ready=Math.round(100-penalty), bar=document.getElementById("b-ready");
+    bar.style.width=ready+"%"; bar.className=ready>=85?"c-ok":"c-warn";
+    document.getElementById("v-ready").textContent=ready;
+    document.getElementById("v-rhi").textContent=rhi;
+    document.getElementById("v-rlo").textContent=rlo;
+    document.getElementById("v-rgd").textContent=rgd;
+    var prog=actionable?Math.round(decided/actionable*100):0;
+    document.getElementById("b-progress").style.width=prog+"%";
+    document.getElementById("v-progress").textContent=prog+"%";
+    document.getElementById("summary-line").textContent=rhi+" 高风险 · "+rlo+" 低风险 · "+rgd+" 已达标";
+  }
+  function accept(note){
+    var a=anchorOf(note), act=note.dataset.action, sug=note.dataset.suggestion;
+    if (act==="replace"||act==="rename"){ a.textContent=sug; a.className="ann applied"; }
+    else if (act==="delete"){ a.classList.add("removed"); }
+    note.classList.add("resolved"); note.classList.remove("lit"); a.classList.remove("lit");
+    recompute(); setTimeout(layout,30);
+  }
+  function ignore(note){
+    var a=anchorOf(note);
+    a.classList.remove("fix","hi","good"); a.classList.add("ann","ignored");
+    note.classList.add("dismissed"); recompute(); setTimeout(layout,30);
+  }
+  function initReview(){
+    stage = document.getElementById("stage");
+    notes = Array.prototype.slice.call(sRev.querySelectorAll(".note[data-anchor]"));
+    notes.forEach(function(note){
+      var a=anchorOf(note);
+      function lit(on){ note.classList.toggle("lit",on); if(a) a.classList.toggle("lit",on); }
+      note.addEventListener("mouseenter",function(){ lit(true); });
+      note.addEventListener("mouseleave",function(){ lit(false); });
+      if (a){
+        a.addEventListener("mouseenter",function(){ lit(true); });
+        a.addEventListener("mouseleave",function(){ lit(false); });
+        a.addEventListener("click",function(){ note.scrollIntoView({behavior:"smooth",block:"center"}); });
+      }
+      var acc=note.querySelector(".acc"), ign=note.querySelector(".ign");
+      if (acc) acc.addEventListener("click",function(){ accept(note); });
+      if (ign) ign.addEventListener("click",function(){ ignore(note); });
+    });
+    recompute();
+  }
+  function show(which){
+    if (which==="rev"){
+      sDiag.style.display="none"; sRev.style.display="block"; window.scrollTo(0,0);
+      if (!inited){ initReview(); inited=true; }
+      setTimeout(layout,20);
+    } else {
+      sRev.style.display="none"; sDiag.style.display="block"; window.scrollTo(0,0);
+    }
+  }
+  document.getElementById("go-review").addEventListener("click",function(){ show("rev"); });
+  document.getElementById("go-diag").addEventListener("click",function(){ show("diag"); });
+  window.addEventListener("resize",layout);
+})();
+</script>
+</body>
+</html>
