@@ -188,10 +188,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
     <div class="target">Nature Medicine</div>
   </header>
   <div class="hero2">
-    <div class="eyebrow">Resubmission · Journal transfer</div>
-    <h1>Take your rejected manuscript and <b>professionally transfer it to the next journal</b></h1>
-    <div class="av"><span class="ab">Original journal style</span><span class="ar">⟶</span><span class="ab to">Target journal · submission-ready</span></div>
-    <p class="sub">Upload your manuscript and pick a target journal — it analyzes the real content locally in your browser and tells you "exactly what stands between you and submission-ready for that journal", then walks you through each fix.</p>
+    <div class="eyebrow">Submission readiness</div>
+    <h1>Submission-ready for <b>any journal</b></h1>
+    <div class="av"><span class="ab">Your manuscript</span><span class="ar">⟶</span><span class="ab to">Journal-ready</span></div>
+    <p class="sub">Upload your paper, choose a target journal, and see exactly what to align — formatting, structure, and wording — to meet its standard. Analyzed right in your browser.</p>
     <div class="ucard">
       <div class="fld"><span class="flab">1 · Target journal</span>
         <select id="journal"><option>Nature Medicine</option><option>The Lancet</option><option>NEJM</option><option>Cell</option><option>JAMA</option></select>
@@ -276,7 +276,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
   <div class="dash">
     <div class="ready"><div class="rlab" id="rlab-ready">Submission readiness</div><div class="rnum"><b id="v-ready">--</b><span>%</span></div><div class="track wide"><i id="b-ready" class="c-warn" style="width:0%"></i></div></div>
     <div class="risks">
-      <div class="rk hi"><b id="v-rhi">0</b><span>High risk · can cause desk-reject</span></div>
+      <div class="rk hi"><b id="v-rhi">0</b><span>High priority · fix before submitting</span></div>
       <div class="rk lo"><b id="v-rlo">0</b><span>Low risk · wording</span></div>
       <div class="rk gd"><b id="v-rgd">0</b><span>Passing</span></div>
     </div>
@@ -492,8 +492,7 @@ function renderDiag(A){
 // ---------- render: Editor review ----------
 var NOTES=[], STAGE, GAP=12;
 function renderReview(A){
-  byId("rev-verdict").innerHTML = "Converting this from <b>"+esc(A.sourceLabel)+"</b> to <b>"+esc(A.journal)+"</b> submission-ready — <b>"+xformCount(A)+"</b> changes to go"
-    + (A.hasHighlights ? ". <b>Currently likely to be desk-rejected.</b>" : ". ");
+  byId("rev-verdict").innerHTML = "Aligning this with <b>"+esc(A.journal)+"</b>: <b>"+xformCount(A)+"</b> things to adjust before it's submission-ready.";
   byId("xform-rev").innerHTML = xformBanner(A, true);
   byId("rlab-ready").textContent = "Ready for " + A.journal;
 
