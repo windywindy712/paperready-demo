@@ -129,12 +129,94 @@
     .note{position:static!important;width:100%;margin-bottom:10px;}
     .steps{display:none;}
   }
+
+  /* upload + loader */
+  .hero2{text-align:center;max-width:680px;margin:46px auto 0;padding:0 24px;}
+  .hero2 h1{font-size:30px;line-height:1.25;margin:0 0 12px;letter-spacing:-.02em;}
+  .hero2 h1 b{color:var(--blue);}
+  .hero2 .sub{color:var(--muted);font-size:16px;margin:0 0 26px;}
+  .ucard{max-width:560px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 40px -18px rgba(31,40,90,.25);padding:26px;text-align:left;}
+  .fld{margin-bottom:18px;}
+  .fld label.flab{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:8px;}
+  .fld select{width:100%;padding:11px 13px;font-size:14px;border:1px solid var(--line2);border-radius:10px;background:#fff;color:var(--ink);}
+  .drop{display:block;border:1.5px dashed var(--line2);border-radius:12px;background:#fcfdff;padding:28px 18px;text-align:center;cursor:pointer;transition:.15s;}
+  .drop:hover,.drop.drag{border-color:var(--blue);background:var(--blue-bg);}
+  .drop .di{font-size:28px;} .drop .dt{font-weight:600;margin:8px 0 3px;} .drop .ds{font-size:12px;color:var(--faint);}
+  .drop .fn{font-size:13px;color:var(--blue-d);font-weight:600;margin-top:10px;}
+  .uact{display:flex;gap:12px;justify-content:flex-start;margin-top:4px;}
+  .btn{appearance:none;cursor:pointer;border:1px solid transparent;font:inherit;font-weight:600;font-size:14px;padding:12px 22px;border-radius:10px;}
+  .btn.primary{background:var(--blue);color:#fff;} .btn.primary:hover{background:var(--blue-d);}
+  .btn.ghost{background:transparent;color:var(--muted);border-color:var(--line2);} .btn.ghost:hover{color:var(--blue);border-color:var(--blue);}
+  .demo-note{max-width:560px;margin:16px auto 0;font-size:11.5px;color:var(--faint);text-align:center;line-height:1.6;}
+  .loader{position:fixed;inset:0;background:rgba(247,248,251,.96);display:flex;align-items:center;justify-content:center;z-index:20;}
+  .lcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 40px -18px rgba(31,40,90,.3);padding:22px 26px;min-width:300px;}
+  .lcard h3{margin:0 0 14px;font-size:15px;}
+  .lstep{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--faint);padding:5px 0;}
+  .lstep.done{color:var(--ink);} .lstep.active{color:var(--blue);font-weight:600;}
+  .lstep .lc{width:15px;height:15px;border-radius:50%;border:2px solid var(--line2);flex:none;}
+  .lstep.done .lc{background:var(--green);border-color:var(--green);}
+  .lstep.active .lc{border-color:var(--blue);border-top-color:transparent;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
   </style>
 </head>
 <body>
 
+
+<!-- ============ 步骤 1：上传 ============ -->
+<div class="screen" id="s-upload">
+  <header class="topbar">
+    <div class="brand"><span class="logo">✓</span> Paper<b>Ready</b></div>
+    <nav class="steps">
+      <span class="step now"><i>1</i> 上传</span><span class="sep"></span>
+      <span class="step"><i>2</i> 选刊</span><span class="sep"></span>
+      <span class="step"><i>3</i> 形式审查</span><span class="sep"></span>
+      <span class="step"><i>4</i> 编辑审阅</span><span class="sep"></span>
+      <span class="step"><i>5</i> 导出</span>
+    </nav>
+    <div class="target">Nature Medicine</div>
+  </header>
+  <div class="hero2">
+    <h1>投稿前，先看它会不会被 <b>desk-reject</b></h1>
+    <p class="sub">上传稿件 · 选目标期刊 · 立刻看到过审就绪度、风险点与逐条带出处的修改建议</p>
+    <div class="ucard">
+      <div class="fld">
+        <label class="flab">1 · 目标期刊</label>
+        <select id="journal">
+          <option>Nature Medicine</option><option>The Lancet</option>
+          <option>NEJM</option><option>Cell</option><option>JAMA</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label class="flab">2 · 上传稿件</label>
+        <label class="drop" id="drop">
+          <input type="file" id="file" accept=".docx,.pdf" hidden>
+          <div class="di">📄</div>
+          <div class="dt">把 .docx / .pdf 拖到这里，或点击选择</div>
+          <div class="ds">仅在本机演示，不会上传到任何服务器</div>
+          <div class="fn" id="fn" hidden></div>
+        </label>
+      </div>
+      <div class="uact">
+        <button class="btn primary" id="go-check">开始检查</button>
+        <button class="btn ghost" id="go-sample">用示例稿件试试 →</button>
+      </div>
+    </div>
+    <div class="demo-note">演示说明：这是产品<b>流程演示</b>。为保护隐私，分析结果统一使用一篇<b>虚构示例稿件</b>（AX-114 / AURORA-1），并非对你上传文件的真实分析。真实稿件分析需连接 AI 引擎。</div>
+  </div>
+</div>
+
+<div class="loader" id="loader" style="display:none">
+  <div class="lcard">
+    <h3 id="lfile">正在分析…</h3>
+    <div class="lstep"><span class="lc"></span> 解析文件、拆解结构</div>
+    <div class="lstep"><span class="lc"></span> 识别文章类型（临床 RCT…）</div>
+    <div class="lstep"><span class="lc"></span> 比对 6 篇期刊语料</div>
+    <div class="lstep"><span class="lc"></span> 形式审查 + 生成审稿意见</div>
+  </div>
+</div>
+
 <!-- ============ 步骤 3：形式审查 ============ -->
-<div class="screen" id="s-diag">
+<div class="screen" id="s-diag" style="display:none">
   <header class="topbar">
     <div class="brand"><span class="logo">✓</span> Paper<b>Ready</b></div>
     <nav class="steps">
@@ -306,89 +388,65 @@
 
 <script>
 (function () {
-  var sDiag = document.getElementById("s-diag");
-  var sRev  = document.getElementById("s-rev");
-  var stage, notes = [], GAP = 12, inited = false;
-
-  function anchorOf(n){ return document.getElementById(n.dataset.anchor); }
+  function byId(id){ return document.getElementById(id); }
+  var sUp=byId("s-upload"), sDiag=byId("s-diag"), sRev=byId("s-rev"), loader=byId("loader");
+  var stage, notes=[], GAP=12, inited=false;
+  function anchorOf(n){ return byId(n.dataset.anchor); }
   function layout(){
-    if (window.innerWidth <= 880 || sRev.style.display === "none") return;
-    var stageTop = stage.getBoundingClientRect().top + window.scrollY;
-    var items = notes.map(function(n){
-      var a = anchorOf(n);
-      return { n:n, top:a.getBoundingClientRect().top + window.scrollY - stageTop };
-    }).sort(function(x,y){ return x.top - y.top; });
-    var cursor = 0;
-    items.forEach(function(it){
-      var top = Math.max(it.top, cursor);
-      it.n.style.top = top + "px";
-      cursor = top + it.n.offsetHeight + GAP;
-    });
+    if (window.innerWidth<=880 || sRev.style.display==="none") return;
+    var st=stage.getBoundingClientRect().top+window.scrollY;
+    var items=notes.map(function(n){var a=anchorOf(n);return{n:n,top:a.getBoundingClientRect().top+window.scrollY-st};}).sort(function(x,y){return x.top-y.top;});
+    var c=0; items.forEach(function(it){var t=Math.max(it.top,c);it.n.style.top=t+"px";c=t+it.n.offsetHeight+GAP;});
   }
   function recompute(){
-    var penalty=0, rhi=0, rlo=0, rgd=0, decided=0, actionable=0;
-    notes.forEach(function(n){
-      var cat=n.dataset.cat;
-      if (cat==="info"){ rgd++; return; }
-      actionable++;
-      var resolved=n.classList.contains("resolved"), dismissed=n.classList.contains("dismissed");
-      if (resolved||dismissed) decided++;
-      if (!resolved){ penalty+=parseFloat(n.dataset.weight)||0; if(n.dataset.sev==="high") rhi++; else rlo++; }
-    });
-    var ready=Math.round(100-penalty), bar=document.getElementById("b-ready");
-    bar.style.width=ready+"%"; bar.className=ready>=85?"c-ok":"c-warn";
-    document.getElementById("v-ready").textContent=ready;
-    document.getElementById("v-rhi").textContent=rhi;
-    document.getElementById("v-rlo").textContent=rlo;
-    document.getElementById("v-rgd").textContent=rgd;
-    var prog=actionable?Math.round(decided/actionable*100):0;
-    document.getElementById("b-progress").style.width=prog+"%";
-    document.getElementById("v-progress").textContent=prog+"%";
-    document.getElementById("summary-line").textContent=rhi+" 高风险 · "+rlo+" 低风险 · "+rgd+" 已达标";
+    var pen=0,rhi=0,rlo=0,rgd=0,dec=0,act=0;
+    notes.forEach(function(n){var cat=n.dataset.cat; if(cat==="info"){rgd++;return;} act++;
+      var r=n.classList.contains("resolved"),d=n.classList.contains("dismissed");
+      if(r||d)dec++; if(!r){pen+=parseFloat(n.dataset.weight)||0; if(n.dataset.sev==="high")rhi++; else rlo++;}});
+    var ready=Math.round(100-pen),bar=byId("b-ready"); bar.style.width=ready+"%"; bar.className=ready>=85?"c-ok":"c-warn";
+    byId("v-ready").textContent=ready; byId("v-rhi").textContent=rhi; byId("v-rlo").textContent=rlo; byId("v-rgd").textContent=rgd;
+    var p=act?Math.round(dec/act*100):0; byId("b-progress").style.width=p+"%"; byId("v-progress").textContent=p+"%";
+    byId("summary-line").textContent=rhi+" 高风险 · "+rlo+" 低风险 · "+rgd+" 已达标";
   }
-  function accept(note){
-    var a=anchorOf(note), act=note.dataset.action, sug=note.dataset.suggestion;
-    if (act==="replace"||act==="rename"){ a.textContent=sug; a.className="ann applied"; }
-    else if (act==="delete"){ a.classList.add("removed"); }
-    note.classList.add("resolved"); note.classList.remove("lit"); a.classList.remove("lit");
-    recompute(); setTimeout(layout,30);
-  }
-  function ignore(note){
-    var a=anchorOf(note);
-    a.classList.remove("fix","hi","good"); a.classList.add("ann","ignored");
-    note.classList.add("dismissed"); recompute(); setTimeout(layout,30);
-  }
+  function accept(note){var a=anchorOf(note),act=note.dataset.action,sug=note.dataset.suggestion;
+    if(act==="replace"||act==="rename"){a.textContent=sug;a.className="ann applied";} else if(act==="delete"){a.classList.add("removed");}
+    note.classList.add("resolved");note.classList.remove("lit");a.classList.remove("lit");recompute();setTimeout(layout,30);}
+  function ignore(note){var a=anchorOf(note);a.classList.remove("fix","hi","good");a.classList.add("ann","ignored");note.classList.add("dismissed");recompute();setTimeout(layout,30);}
   function initReview(){
-    stage = document.getElementById("stage");
-    notes = Array.prototype.slice.call(sRev.querySelectorAll(".note[data-anchor]"));
-    notes.forEach(function(note){
-      var a=anchorOf(note);
-      function lit(on){ note.classList.toggle("lit",on); if(a) a.classList.toggle("lit",on); }
-      note.addEventListener("mouseenter",function(){ lit(true); });
-      note.addEventListener("mouseleave",function(){ lit(false); });
-      if (a){
-        a.addEventListener("mouseenter",function(){ lit(true); });
-        a.addEventListener("mouseleave",function(){ lit(false); });
-        a.addEventListener("click",function(){ note.scrollIntoView({behavior:"smooth",block:"center"}); });
-      }
-      var acc=note.querySelector(".acc"), ign=note.querySelector(".ign");
-      if (acc) acc.addEventListener("click",function(){ accept(note); });
-      if (ign) ign.addEventListener("click",function(){ ignore(note); });
-    });
+    stage=byId("stage"); notes=Array.prototype.slice.call(sRev.querySelectorAll(".note[data-anchor]"));
+    notes.forEach(function(note){var a=anchorOf(note);
+      function lit(on){note.classList.toggle("lit",on); if(a)a.classList.toggle("lit",on);}
+      note.addEventListener("mouseenter",function(){lit(true);}); note.addEventListener("mouseleave",function(){lit(false);});
+      if(a){a.addEventListener("mouseenter",function(){lit(true);}); a.addEventListener("mouseleave",function(){lit(false);}); a.addEventListener("click",function(){note.scrollIntoView({behavior:"smooth",block:"center"});});}
+      var ac=note.querySelector(".acc"),ig=note.querySelector(".ign");
+      if(ac)ac.addEventListener("click",function(){accept(note);}); if(ig)ig.addEventListener("click",function(){ignore(note);});});
     recompute();
   }
-  function show(which){
-    if (which==="rev"){
-      sDiag.style.display="none"; sRev.style.display="block"; window.scrollTo(0,0);
-      if (!inited){ initReview(); inited=true; }
-      setTimeout(layout,20);
-    } else {
-      sRev.style.display="none"; sDiag.style.display="block"; window.scrollTo(0,0);
-    }
+  function showScreen(el){ [sUp,sDiag,sRev].forEach(function(s){ s.style.display=(s===el?"block":"none"); }); window.scrollTo(0,0); }
+  function toDiag(){ showScreen(sDiag); }
+  function toRev(){ showScreen(sRev); if(!inited){initReview();inited=true;} setTimeout(layout,20); }
+  function runLoader(name){
+    byId("lfile").textContent = name ? ("正在分析："+name) : "正在分析示例稿件…";
+    var steps=Array.prototype.slice.call(document.querySelectorAll(".lstep"));
+    steps.forEach(function(s){s.className="lstep";});
+    loader.style.display="flex"; var i=0;
+    (function tick(){ if(i>0)steps[i-1].className="lstep done";
+      if(i<steps.length){steps[i].className="lstep active";i++;setTimeout(tick,650);}
+      else{loader.style.display="none";toDiag();} })();
   }
-  document.getElementById("go-review").addEventListener("click",function(){ show("rev"); });
-  document.getElementById("go-diag").addEventListener("click",function(){ show("diag"); });
+  var drop=byId("drop"), file=byId("file"), fn=byId("fn");
+  if(file){ file.addEventListener("change",function(){ if(file.files[0]){fn.textContent="已选择："+file.files[0].name;fn.hidden=false;} }); }
+  if(drop){
+    ["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add("drag");});});
+    ["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.remove("drag");});});
+    drop.addEventListener("drop",function(e){ if(e.dataTransfer.files[0]){file.files=e.dataTransfer.files;fn.textContent="已选择："+e.dataTransfer.files[0].name;fn.hidden=false;} });
+  }
+  byId("go-check").addEventListener("click",function(){ runLoader(file.files[0]?file.files[0].name:"示例稿件"); });
+  byId("go-sample").addEventListener("click",function(){ runLoader("示例稿件 AX-114"); });
+  byId("go-review").addEventListener("click",toRev);
+  byId("go-diag").addEventListener("click",toDiag);
   window.addEventListener("resize",layout);
+  showScreen(sUp);
 })();
 </script>
 </body>
